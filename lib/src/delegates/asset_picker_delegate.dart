@@ -5,8 +5,7 @@
 import 'package:flutter/material.dart' hide Path;
 import 'package:flutter/services.dart' show MethodCall;
 import 'package:photo_manager/photo_manager.dart';
-import 'package:wechat_picker_library/wechat_picker_library.dart'
-    show buildTheme;
+import 'package:wechat_picker_library/wechat_picker_library.dart' show buildTheme;
 
 import '../constants/config.dart';
 import '../constants/constants.dart' show packageName;
@@ -81,12 +80,11 @@ class AssetPickerDelegate {
     final PermissionState ps = await permissionCheck(
       requestOption: permissionRequestOption,
     );
-    final AssetPickerPageRoute<List<AssetEntity>> route =
-        pageRouteBuilder?.call(const SizedBox.shrink()) ??
-            AssetPickerPageRoute<List<AssetEntity>>(
-              builder: (_) => const SizedBox.shrink(),
-              settings: pageRouteSettings,
-            );
+    final AssetPickerPageRoute<List<AssetEntity>> route = pageRouteBuilder?.call(const SizedBox.shrink()) ??
+        AssetPickerPageRoute<List<AssetEntity>>(
+          builder: (_) => const SizedBox.shrink(),
+          settings: pageRouteSettings,
+        );
     final DefaultAssetPickerProvider provider = DefaultAssetPickerProvider(
       maxAssets: pickerConfig.maxAssets,
       pageSize: pickerConfig.pageSize,
@@ -97,8 +95,7 @@ class AssetPickerDelegate {
       filterOptions: pickerConfig.filterOptions,
       initializeDelayDuration: route.transitionDuration,
     );
-    final picker = AssetPicker<AssetEntity, AssetPathEntity,
-        DefaultAssetPickerBuilderDelegate>(
+    final picker = AssetPicker<AssetEntity, AssetPathEntity, DefaultAssetPickerBuilderDelegate>(
       key: key,
       permissionRequestOption: permissionRequestOption,
       builder: DefaultAssetPickerBuilderDelegate(
@@ -113,8 +110,7 @@ class AssetPickerDelegate {
         loadingIndicatorBuilder: pickerConfig.loadingIndicatorBuilder,
         selectPredicate: pickerConfig.selectPredicate,
         shouldRevertGrid: pickerConfig.shouldRevertGrid,
-        limitedPermissionOverlayPredicate:
-            pickerConfig.limitedPermissionOverlayPredicate,
+        limitedPermissionOverlayPredicate: pickerConfig.limitedPermissionOverlayPredicate,
         pathNameBuilder: pickerConfig.pathNameBuilder,
         assetsChangeCallback: pickerConfig.assetsChangeCallback,
         assetsChangeRefreshPredicate: pickerConfig.assetsChangeRefreshPredicate,
@@ -156,15 +152,11 @@ class AssetPickerDelegate {
   ///  * [AssetPickerBuilderDelegate] for how to customize/override widgets
   ///    during the picking process.
   /// {@endtemplate}
-  Future<List<Asset>?> pickAssetsWithDelegate<
-      Asset,
-      Path,
-      PickerProvider extends AssetPickerProvider<Asset, Path>,
+  Future<List<Asset>?> pickAssetsWithDelegate<Asset, Path, PickerProvider extends AssetPickerProvider<Asset, Path>,
       Delegate extends AssetPickerBuilderDelegate<Asset, Path>>(
     BuildContext context, {
     required Delegate delegate,
-    PermissionRequestOption permissionRequestOption =
-        const PermissionRequestOption(),
+    PermissionRequestOption permissionRequestOption = const PermissionRequestOption(),
     Key? key,
     bool useRootNavigator = true,
     RouteSettings? pageRouteSettings,

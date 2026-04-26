@@ -35,7 +35,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
           ),
         );
       },
@@ -52,7 +52,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.image,
           ),
         );
@@ -70,7 +70,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.video,
           ),
         );
@@ -88,7 +88,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.audio,
           ),
         );
@@ -106,7 +106,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.image,
             filterOptions: CustomFilter.sql(
               where: '${CustomColumns.base.mediaType} = 1'
@@ -134,7 +134,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             specialItems: [
               SpecialItem(
                 position: SpecialItemPosition.prepend,
@@ -154,8 +154,7 @@ class PickMethod {
                       behavior: HitTestBehavior.opaque,
                       onTap: () async {
                         Feedback.forTap(context);
-                        final AssetEntity? result =
-                            await _pickFromCamera(context);
+                        final AssetEntity? result = await _pickFromCamera(context);
                         if (result != null) {
                           handleResult(context, result);
                         }
@@ -190,7 +189,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             specialItems: [
               SpecialItem(
                 position: SpecialItemPosition.prepend,
@@ -209,22 +208,19 @@ class PickMethod {
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () async {
-                        final AssetEntity? result =
-                            await _pickFromCamera(context);
+                        final AssetEntity? result = await _pickFromCamera(context);
                         if (result == null) {
                           return;
                         }
                         final picker = context.findAncestorWidgetOfExactType<
-                            AssetPicker<AssetEntity, AssetPathEntity,
-                                DefaultAssetPickerBuilderDelegate>>()!;
+                            AssetPicker<AssetEntity, AssetPathEntity, DefaultAssetPickerBuilderDelegate>>()!;
                         final p = picker.builder.provider;
                         await p.switchPath(
                           PathWrapper<AssetPathEntity>(
-                            path: await p.currentPath!.path
-                                .obtainForNewProperties(),
+                            path: await p.currentPath!.path.obtainForNewProperties(),
                           ),
                         );
-                        p.selectAsset(result);
+                        p.selectAsset(result.id);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(28.0),
@@ -257,7 +253,7 @@ class PickMethod {
             gridCount: 3,
             pageSize: 120,
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.all,
           ),
         );
@@ -278,7 +274,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             requestType: RequestType.video,
             filterOptions: FilterOptionGroup(
               videoOption: const FilterOption(
@@ -303,7 +299,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             specialItems: [
               SpecialItem(
                 position: SpecialItemPosition.prepend,
@@ -337,7 +333,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             specialItems: [
               SpecialItem(
                 position: SpecialItemPosition.prepend,
@@ -401,7 +397,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             specialPickerType: SpecialPickerType.noPreview,
           ),
         );
@@ -444,7 +440,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             textDelegate: const EnglishAssetPickerTextDelegate(),
           ),
         );
@@ -465,7 +461,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             selectPredicate: (BuildContext c, AssetEntity a, bool isSelected) {
               debugPrint('Asset title: ${a.title}');
               return a.title?.endsWith('.gif') != true;
@@ -489,7 +485,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             pickerTheme: AssetPicker.themeData(
               Colors.lightBlueAccent,
               light: true,
@@ -510,7 +506,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             pathNameBuilder: (AssetPathEntity path) => '${path.name}🍭',
           ),
         );
@@ -531,7 +527,7 @@ class PickMethod {
           context,
           pickerConfig: AssetPickerConfig(
             maxAssets: maxAssetsCount,
-            selectedAssets: assets,
+            selectedAssets: assets.map((e) => e.id).toList(),
             enableLivePhoto: false,
           ),
         );

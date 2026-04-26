@@ -97,7 +97,7 @@ class _MultiAssetsPageState extends State<MultiAssetsPage>
             context,
             pickerConfig: AssetPickerConfig(
               maxAssets: maxAssetsCount,
-              selectedAssets: assets,
+              selectedAssets: assets.map((e) => e.id).toList(),
               requestType: RequestType.image,
               gridThumbnailSize: const ThumbnailSize.square(80),
               previewThumbnailSize: const ThumbnailSize.square(150),

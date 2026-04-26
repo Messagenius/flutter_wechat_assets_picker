@@ -416,13 +416,13 @@ class DefaultAssetPickerViewerBuilderDelegate<
   @override
   void unSelectAsset(AssetEntity asset) {
     super.unSelectAsset(asset);
-    selectorProvider?.unSelectAsset(asset);
+    selectorProvider?.unSelectAsset(asset.id);
   }
 
   @override
   void selectAsset(AssetEntity asset) {
     super.selectAsset(asset);
-    selectorProvider?.selectAsset(asset);
+    selectorProvider?.selectAsset(asset.id);
   }
 
   Widget assetSemanticsBuilder(BuildContext context, int index) {

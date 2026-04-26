@@ -61,7 +61,7 @@ class AssetPickerConfig {
 
   /// Selected assets.
   /// 已选中的资源
-  final List<AssetEntity>? selectedAssets;
+  final List<String>? selectedAssets;
 
   /// Maximum count for asset selection.
   /// 资源选择的最大数量

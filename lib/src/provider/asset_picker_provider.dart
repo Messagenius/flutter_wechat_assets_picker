@@ -26,13 +26,11 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
     this.maxAssets = defaultMaxAssetsCount,
     this.pageSize = defaultAssetsPerPage,
     this.pathThumbnailSize = defaultPathThumbnailSize,
-    List<Asset>? selectedAssets,
+    List<String>? selectedAssets,
   })  : assert(maxAssets > 0, 'maxAssets must be greater than 0.'),
         assert(pageSize > 0, 'pageSize must be greater than 0.'),
-        previousSelectedAssets =
-            selectedAssets?.toList(growable: false) ?? List<Asset>.empty(),
-        _selectedAssets =
-            selectedAssets?.toList() ?? List<Asset>.empty(growable: true);
+        previousSelectedAssets = selectedAssets?.toList(growable: false) ?? List<String>.empty(),
+        _selectedAssets = selectedAssets?.toList() ?? List<String>.empty(growable: true);
 
   /// Maximum count for asset selection.
   /// 资源选择的最大数量
@@ -50,7 +48,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
 
   /// Selected assets before the picker starts picking.
   /// 选择器开始选择前已选中的资源
-  final List<Asset> previousSelectedAssets;
+  final List<String> previousSelectedAssets;
 
   /// Clear all fields when dispose.
   /// 销毁时重置所有内容
@@ -137,8 +135,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
 
   /// The current page for assets list.
   /// 当前加载的资源列表分页数
-  int get currentAssetsListPage =>
-      (math.max(1, _currentAssets.length) / pageSize).ceil();
+  int get currentAssetsListPage => (math.max(1, _currentAssets.length) / pageSize).ceil();
 
   /// Total count for assets.
   /// 资源总数
@@ -208,10 +205,10 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
 
   /// Selected assets.
   /// 已选中的资源
-  List<Asset> get selectedAssets => _selectedAssets;
-  late List<Asset> _selectedAssets;
+  List<String> get selectedAssets => _selectedAssets;
+  late List<String> _selectedAssets;
 
-  set selectedAssets(List<Asset> value) {
+  set selectedAssets(List<String> value) {
     if (value == _selectedAssets) {
       return;
     }
@@ -227,7 +224,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
   /// 它为预览部件的选中部分的 [Selector] 提供了是否重建的条件。
   String get selectedDescriptions => _selectedAssets.fold(
         <String>[],
-        (List<String> list, Asset a) => list..add(a.toString()),
+        (List<String> list, String a) => list..add(a),
       ).join();
 
   /// 选中资源是否为空
@@ -238,7 +235,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
 
   /// Select asset.
   /// 选中资源
-  void selectAsset(Asset item) {
+  void selectAsset(String item) {
     if (selectedAssets.length == maxAssets) {
       return;
     }
@@ -248,20 +245,20 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
       return;
     }
 
-    final List<Asset> set = selectedAssets.toList();
+    final List<String> set = selectedAssets.toList();
     set.add(item);
     selectedAssets = set;
   }
 
   /// Un-select asset.
   /// 取消选中资源
-  void unSelectAsset(Asset item) {
+  void unSelectAsset(String item) {
     if (!selectedAssets.contains(item)) {
       notifyListeners();
       return;
     }
 
-    final List<Asset> set = selectedAssets.toList();
+    final List<String> set = selectedAssets.toList();
     set.remove(item);
     selectedAssets = set;
   }
@@ -269,8 +266,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
 
 /// The default implementation of the [AssetPickerProvider] for the picker.
 /// The `Asset` is [AssetEntity], and the `Path` is [AssetPathEntity].
-class DefaultAssetPickerProvider
-    extends AssetPickerProvider<AssetEntity, AssetPathEntity> {
+class DefaultAssetPickerProvider extends AssetPickerProvider<AssetEntity, AssetPathEntity> {
   DefaultAssetPickerProvider({
     super.selectedAssets,
     super.maxAssets,
@@ -391,8 +387,7 @@ class DefaultAssetPickerProvider
     _paths = list.map((p) {
       final int? assetCount;
       if (keepPreviousCount) {
-        assetCount =
-            _paths.where((e) => e.path.id == p.id).firstOrNull?.assetCount;
+        assetCount = _paths.where((e) => e.path.id == p.id).firstOrNull?.assetCount;
       } else {
         assetCount = null;
       }

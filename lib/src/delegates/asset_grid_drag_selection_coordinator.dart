@@ -93,7 +93,7 @@ class AssetGridDragSelectionCoordinator {
     largestSelectingIndex = index;
     smallestSelectingIndex = index;
 
-    addSelected = !delegate.provider.selectedAssets.contains(asset);
+    addSelected = !delegate.provider.selectedAssets.contains(asset.id);
   }
 
   void onSelectionUpdate({

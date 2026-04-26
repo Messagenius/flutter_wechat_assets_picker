@@ -39,17 +39,17 @@ class _MultiTabAssetPickerState extends State<MultiTabAssetPicker> {
     );
 
     final DefaultAssetPickerProvider provider = DefaultAssetPickerProvider(
-      selectedAssets: entities,
+      selectedAssets: entities.map((e) => e.id).toList(),
       maxAssets: maxAssets,
     );
     final DefaultAssetPickerProvider imagesProvider =
         DefaultAssetPickerProvider(
-      selectedAssets: entities,
+      selectedAssets: entities.map((e) => e.id).toList(),
       maxAssets: maxAssets,
     );
     final DefaultAssetPickerProvider videosProvider =
         DefaultAssetPickerProvider(
-      selectedAssets: entities,
+      selectedAssets: entities.map((e) => e.id).toList(),
       maxAssets: maxAssets,
       requestType: RequestType.video,
     );

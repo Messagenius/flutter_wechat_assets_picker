@@ -944,6 +944,12 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
     presentLimitedTapGestureRecognizer = TapGestureRecognizer()..onTap = PhotoManager.presentLimited;
   }
 
+  List<AssetEntity> _resolveSelectedEntities(AssetPickerProvider<AssetEntity, AssetPathEntity> p) {
+    final assets = p.currentAssets;
+    final assetMap = {for (final a in assets) a.id: a};
+    return p.selectedAssets.where((id) => assetMap.containsKey(id)).map((id) => assetMap[id]!).toList();
+  }
+
   /// Be aware that the method will do nothing when [keepScrollOffset] is true.
   /// 注意当 [keepScrollOffset] 为 true 时方法不会进行释放。
   @override
@@ -974,15 +980,15 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
     }
     final provider = context.read<T>();
     if (selected) {
-      provider.unSelectAsset(asset);
+      provider.unSelectAsset(asset.id);
       return;
     }
     if (isSingleAssetMode) {
       provider.selectedAssets.clear();
     }
-    provider.selectAsset(asset);
+    provider.selectAsset(asset.id);
     if (isSingleAssetMode && !isPreviewEnabled) {
-      Navigator.maybeOf(context)?.maybePop(provider.selectedAssets);
+      Navigator.maybeOf(context)?.maybePop(_resolveSelectedEntities(provider));
     }
   }
 
@@ -1079,9 +1085,9 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
         );
         if (newPath.isAll) {
           await provider.getAssetsFromCurrentPath();
-          final entitiesShouldBeRemoved = <AssetEntity>[];
+          final entitiesShouldBeRemoved = <String>[];
           for (final entity in provider.selectedAssets) {
-            if (!provider.currentAssets.contains(entity)) {
+            if (!provider.currentAssets.map((e) => e.id).contains(entity)) {
               entitiesShouldBeRemoved.add(entity);
             }
           }
@@ -1112,7 +1118,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
     // - When the special type is WeChat Moment, pictures and videos cannot
     //   be selected at the same time. Video select should be banned if any
     //   pictures are selected.
-    if ((!p.selectedAssets.contains(currentAsset) && p.selectedMaximumAssets) ||
+    if ((!p.selectedAssets.contains(currentAsset.id) && p.selectedMaximumAssets) ||
         (isWeChatMoment && currentAsset.type == AssetType.video && p.selectedAssets.isNotEmpty)) {
       return;
     }
@@ -1131,12 +1137,15 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
       } else {
         final List<AssetEntity> list;
         if (index == null) {
-          list = p.selectedAssets.reversed.toList(growable: false);
+          list = p.selectedAssets.reversed
+              .map((id) => p.currentAssets.where((e) => e.id == id).firstOrNull)
+              .whereType<AssetEntity>()
+              .toList(growable: false);
         } else {
           list = p.currentAssets;
         }
         current = list.where((e) => e.type == AssetType.image).toList();
-        selected = p.selectedAssets;
+        selected = p.currentAssets.where((e) => p.selectedAssets.contains(e.id)).toList();
         final i = current.indexOf(currentAsset);
         effectiveIndex = revert ? current.length - i - 1 : i;
         _debugFlow = switch ((index == null, revert)) {
@@ -1147,13 +1156,22 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
         };
       }
     } else {
-      selected = p.selectedAssets;
+      selected = p.selectedAssets
+          .map((id) => p.currentAssets.where((e) => e.id == id).firstOrNull)
+          .whereType<AssetEntity>()
+          .toList();
       final List<AssetEntity> list;
       if (index == null) {
         if (revert) {
-          list = p.selectedAssets.reversed.toList(growable: false);
+          list = p.selectedAssets.reversed
+              .map((id) => p.currentAssets.where((e) => e.id == id).firstOrNull)
+              .whereType<AssetEntity>()
+              .toList(growable: false);
         } else {
-          list = p.selectedAssets;
+          list = p.selectedAssets
+              .map((id) => p.currentAssets.where((e) => e.id == id).firstOrNull)
+              .whereType<AssetEntity>()
+              .toList(growable: false);
         }
         effectiveIndex = selected.indexOf(currentAsset);
         current = list;
@@ -1660,12 +1678,12 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
       builder: (_, bool isSwitchingPath, Widget? child) {
         return Consumer<T>(
           builder: (_, T p, __) {
-            final bool isBanned = (!p.selectedAssets.contains(asset) && p.selectedMaximumAssets) ||
+            final bool isBanned = (!p.selectedAssets.contains(asset.id) && p.selectedMaximumAssets) ||
                 (isWeChatMoment && asset.type == AssetType.video && p.selectedAssets.isNotEmpty);
             final bool isSelected = p.selectedDescriptions.contains(
               asset.toString(),
             );
-            final int selectedIndex = p.selectedAssets.indexOf(asset) + 1;
+            final int selectedIndex = p.selectedAssets.indexOf(asset.id) + 1;
             final labels = <String>[
               '${semanticsTextDelegate.semanticTypeLabel(asset.type)}'
                   '${assetGridItemSemanticIndex(index, specialItemsFinalized)}',
@@ -1829,7 +1847,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
           ),
           onPressed: shouldAllowConfirm
               ? () {
-                  Navigator.maybeOf(context)?.maybePop(p.selectedAssets);
+                  Navigator.maybeOf(context)?.maybePop(_resolveSelectedEntities(p));
                 }
               : null,
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -2257,7 +2275,14 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
         builder: (context, T p, __) => GestureDetector(
           onTap: p.isSelectedNotEmpty
               ? () {
-                  viewAsset(context, null, p.selectedAssets.first);
+                  viewAsset(
+                    context,
+                    null,
+                    p.currentAssets.firstWhere(
+                      (element) => element.id == p.selectedAssets.first,
+                      orElse: () => p.currentAssets.first,
+                    ),
+                  );
                 }
               : null,
           child: Selector<T, String>(
@@ -2286,7 +2311,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
   Widget itemBannedIndicator(BuildContext context, AssetEntity asset) {
     return Consumer<T>(
       builder: (_, T p, __) {
-        final bool isDisabled = (!p.selectedAssets.contains(asset) && p.selectedMaximumAssets) ||
+        final bool isDisabled = (!p.selectedAssets.contains(asset.id) && p.selectedMaximumAssets) ||
             (isWeChatMoment && asset.type == AssetType.video && p.selectedAssets.isNotEmpty);
         if (isDisabled) {
           return Container(
@@ -2301,59 +2326,55 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
   @override
   Widget selectIndicator(BuildContext context, int index, AssetEntity asset) {
     final Duration duration = switchingPathDuration * 0.75;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double indicatorSize = constraints.maxWidth * 0.3;
-        return Selector<T, String>(
-          selector: (_, T p) => p.selectedDescriptions,
-          builder: (BuildContext context, String descriptions, __) {
-            final bool selected = descriptions.contains(asset.toString());
-            final Widget innerSelector = AnimatedContainer(
+    final double indicatorSize = 30;
+    return Selector<T, String>(
+      selector: (_, T p) => p.selectedDescriptions,
+      builder: (BuildContext context, String descriptions, __) {
+        final bool selected = descriptions.contains(asset.id);
+        final Widget innerSelector = AnimatedContainer(
+          duration: duration,
+          width: indicatorSize / (isAppleOS(context) ? 1.25 : 1.5),
+          height: indicatorSize / (isAppleOS(context) ? 1.25 : 1.5),
+          padding: EdgeInsets.all(indicatorSize / 10),
+          decoration: BoxDecoration(
+            border: !selected
+                ? Border.all(
+                    color: context.theme.unselectedWidgetColor,
+                    width: indicatorSize / 25,
+                  )
+                : null,
+            color: selected ? themeColor : null,
+            shape: BoxShape.circle,
+          ),
+          child: FittedBox(
+            child: AnimatedSwitcher(
               duration: duration,
-              width: indicatorSize / (isAppleOS(context) ? 1.25 : 1.5),
-              height: indicatorSize / (isAppleOS(context) ? 1.25 : 1.5),
-              padding: EdgeInsets.all(indicatorSize / 10),
-              decoration: BoxDecoration(
-                border: !selected
-                    ? Border.all(
-                        color: context.theme.unselectedWidgetColor,
-                        width: indicatorSize / 25,
-                      )
-                    : null,
-                color: selected ? themeColor : null,
-                shape: BoxShape.circle,
-              ),
-              child: FittedBox(
-                child: AnimatedSwitcher(
-                  duration: duration,
-                  reverseDuration: duration,
-                  child: selected ? const Icon(Icons.check) : const SizedBox.shrink(),
-                ),
-              ),
-            );
-            final Widget selectorWidget = GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                selectAsset(context, asset, index, selected);
-              },
-              child: Container(
-                margin: EdgeInsets.all(indicatorSize / 5),
-                width: isPreviewEnabled ? indicatorSize : null,
-                height: isPreviewEnabled ? indicatorSize : null,
-                alignment: AlignmentDirectional.topEnd,
-                child: (!isPreviewEnabled && isSingleAssetMode && !selected) ? const SizedBox.shrink() : innerSelector,
-              ),
-            );
-            if (isPreviewEnabled) {
-              return PositionedDirectional(
-                top: 0,
-                end: 0,
-                child: selectorWidget,
-              );
-            }
-            return selectorWidget;
-          },
+              reverseDuration: duration,
+              child: selected ? const Icon(Icons.check) : const SizedBox.shrink(),
+            ),
+          ),
         );
+        final Widget selectorWidget = GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            selectAsset(context, asset, index, selected);
+          },
+          child: Container(
+            margin: EdgeInsets.all(indicatorSize / 5),
+            width: isPreviewEnabled ? indicatorSize : null,
+            height: isPreviewEnabled ? indicatorSize : null,
+            alignment: AlignmentDirectional.topEnd,
+            child: (!isPreviewEnabled && isSingleAssetMode && !selected) ? const SizedBox.shrink() : innerSelector,
+          ),
+        );
+        if (isPreviewEnabled) {
+          return PositionedDirectional(
+            top: 0,
+            end: 0,
+            child: selectorWidget,
+          );
+        }
+        return selectorWidget;
       },
     );
   }
@@ -2370,7 +2391,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
             : null,
         child: Consumer<T>(
           builder: (_, T p, __) {
-            final int index = p.selectedAssets.indexOf(asset);
+            final int index = p.selectedAssets.indexOf(asset.id);
             final bool selected = index != -1;
             return AnimatedContainer(
               duration: switchingPathDuration,
