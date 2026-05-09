@@ -422,7 +422,7 @@ class DefaultAssetPickerViewerBuilderDelegate<
   @override
   void selectAsset(AssetEntity asset) {
     super.selectAsset(asset);
-    selectorProvider?.selectAsset(asset.id);
+    selectorProvider?.selectAsset(asset);
   }
 
   Widget assetSemanticsBuilder(BuildContext context, int index) {

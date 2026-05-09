@@ -249,18 +249,19 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
 
   /// Select asset.
   /// 选中资源
-  void selectAsset(String item) {
+  void selectAsset(Asset item) {
     if (selectedAssets.length == maxAssets) {
       return;
     }
 
-    if (selectedAssets.contains(item)) {
+    if (selectedAssets.contains(item.id)) {
       notifyListeners();
       return;
     }
 
     final List<String> set = selectedAssets.toList();
-    set.add(item);
+    set.add(item.id);
+    _selectedAssetsEntities.add(item);
     selectedAssets = set;
   }
 
@@ -274,6 +275,7 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
 
     final List<String> set = selectedAssets.toList();
     set.remove(item);
+    _selectedAssetsEntities.removeWhere((asset) => asset.id == item);
     selectedAssets = set;
   }
 }

@@ -984,7 +984,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
     if (isSingleAssetMode) {
       provider.selectedAssets.clear();
     }
-    provider.selectAsset(asset.id);
+    provider.selectAsset(asset);
     if (isSingleAssetMode && !isPreviewEnabled) {
       Navigator.maybeOf(context)?.maybePop(_resolveSelectedEntities(provider));
     }
