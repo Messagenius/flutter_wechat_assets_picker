@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../constants/custom_pick_method.dart';
 import '../constants/extensions.dart';
-import 'pickers/directory_file_asset_picker.dart';
 import 'pickers/insta_asset_picker.dart';
 import 'pickers/multi_tabs_assets_picker.dart';
 
@@ -28,18 +27,18 @@ class _CustomPickerPageState extends State<CustomPickersPage>
 
   List<CustomPickMethod> pickMethods(BuildContext context) {
     return <CustomPickMethod>[
-      CustomPickMethod(
-        icon: '🗄',
-        name: context.l10n.customPickerDirectoryAndFileName,
-        description: context.l10n.customPickerDirectoryAndFileDescription,
-        method: (BuildContext context) {
-          Navigator.maybeOf(context)?.push<void>(
-            MaterialPageRoute<void>(
-              builder: (_) => const DirectoryFileAssetPicker(),
-            ),
-          );
-        },
-      ),
+      // CustomPickMethod(
+      //   icon: '🗄',
+      //   name: context.l10n.customPickerDirectoryAndFileName,
+      //   description: context.l10n.customPickerDirectoryAndFileDescription,
+      //   method: (BuildContext context) {
+      //     Navigator.maybeOf(context)?.push<void>(
+      //       MaterialPageRoute<void>(
+      //         builder: (_) => const DirectoryFileAssetPicker(),
+      //       ),
+      //     );
+      //   },
+      // ),
       CustomPickMethod(
         icon: '🔀',
         name: context.l10n.customPickerMultiTabName,

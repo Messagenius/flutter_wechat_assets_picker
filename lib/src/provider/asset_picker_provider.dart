@@ -21,7 +21,7 @@ import '../models/path_wrapper.dart';
 /// By extending it you can customize how you can get all assets or paths,
 /// how to fetch the next page of assets,
 /// and how to get the thumbnail data of a path.
-abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
+abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends ChangeNotifier {
   AssetPickerProvider({
     this.maxAssets = defaultMaxAssetsCount,
     this.pageSize = defaultAssetsPerPage,
@@ -97,6 +97,18 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
   /// 设备上是否有资源文件
   bool get isAssetsEmpty => _isAssetsEmpty;
   bool _isAssetsEmpty = false;
+
+  List<Asset> _selectedAssetsEntities = [];
+
+  /// Selected assets that exist in the current loaded page, as [Asset] objects.
+  List<Asset> get selectedAssetsEntities => _selectedAssetsEntities;
+
+  void _updateSelectedAssetsEntities() {
+    final assetMap = <String, Asset>{
+      for (final asset in _currentAssets) asset.id: asset,
+    };
+    _selectedAssetsEntities = _selectedAssets.where(assetMap.containsKey).map((id) => assetMap[id]!).toList();
+  }
 
   set isAssetsEmpty(bool value) {
     if (value == _isAssetsEmpty) {
@@ -200,6 +212,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
       return;
     }
     _currentAssets = value.toList();
+    _updateSelectedAssetsEntities();
     notifyListeners();
   }
 
@@ -213,6 +226,7 @@ abstract class AssetPickerProvider<Asset, Path> extends ChangeNotifier {
       return;
     }
     _selectedAssets = value.toList();
+    _updateSelectedAssetsEntities();
     notifyListeners();
   }
 
@@ -431,6 +445,7 @@ class DefaultAssetPickerProvider extends AssetPickerProvider<AssetEntity, AssetP
         _hasMoreToLoad = false;
       }
       _currentAssets.addAll(list);
+      _updateSelectedAssetsEntities();
       _hasAssetsToDisplay = _currentAssets.isNotEmpty;
       _isAssetsEmpty = _currentAssets.isEmpty;
       notifyListeners();

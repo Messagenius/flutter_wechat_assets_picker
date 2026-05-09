@@ -152,7 +152,10 @@ class AssetPickerDelegate {
   ///  * [AssetPickerBuilderDelegate] for how to customize/override widgets
   ///    during the picking process.
   /// {@endtemplate}
-  Future<List<Asset>?> pickAssetsWithDelegate<Asset, Path, PickerProvider extends AssetPickerProvider<Asset, Path>,
+  Future<List<Asset>?> pickAssetsWithDelegate<
+      Asset extends AssetEntity,
+      Path,
+      PickerProvider extends AssetPickerProvider<Asset, Path>,
       Delegate extends AssetPickerBuilderDelegate<Asset, Path>>(
     BuildContext context, {
     required Delegate delegate,

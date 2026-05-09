@@ -52,7 +52,7 @@ void main() async {
             onButtonPressed: (BuildContext context) {
               AssetPicker.pickAssets(
                 context,
-                pickerConfig: AssetPickerConfig(selectedAssets: selectedAssets),
+                pickerConfig: AssetPickerConfig(selectedAssets: selectedAssets.map((e) => e.id).toList()),
               );
             },
           ),

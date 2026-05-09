@@ -552,8 +552,8 @@ abstract class AssetPickerBuilderDelegate<Asset, Path> {
   /// Indicator when the asset cannot be selected.
   /// 当资源无法被选中时的遮罩
   Widget itemBannedIndicator(BuildContext context, Asset asset) {
-    return Consumer<AssetPickerProvider<Asset, Path>>(
-      builder: (_, AssetPickerProvider<Asset, Path> p, __) {
+    return Consumer<AssetPickerProvider<AssetEntity, AssetPathEntity>>(
+      builder: (_, AssetPickerProvider<AssetEntity, AssetPathEntity> p, __) {
         if (!p.selectedAssets.contains(asset) && p.selectedMaximumAssets) {
           return Container(
             color: theme.colorScheme.surface.withOpacity(.85),
@@ -945,9 +945,7 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
   }
 
   List<AssetEntity> _resolveSelectedEntities(AssetPickerProvider<AssetEntity, AssetPathEntity> p) {
-    final assets = p.currentAssets;
-    final assetMap = {for (final a in assets) a.id: a};
-    return p.selectedAssets.where((id) => assetMap.containsKey(id)).map((id) => assetMap[id]!).toList();
+    return p.selectedAssetsEntities;
   }
 
   /// Be aware that the method will do nothing when [keepScrollOffset] is true.
