@@ -30,7 +30,9 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
   })  : assert(maxAssets > 0, 'maxAssets must be greater than 0.'),
         assert(pageSize > 0, 'pageSize must be greater than 0.'),
         previousSelectedAssets = selectedAssets?.toList(growable: false) ?? List<String>.empty(),
-        _selectedAssets = selectedAssets?.toList() ?? List<String>.empty(growable: true);
+        initialSelectedAssets = selectedAssets;
+
+  late List<String>? initialSelectedAssets;
 
   /// Maximum count for asset selection.
   /// 资源选择的最大数量
@@ -104,10 +106,7 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
   List<Asset> get selectedAssetsEntities => _selectedAssetsEntities;
 
   void _updateSelectedAssetsEntities() {
-    final assetMap = <String, Asset>{
-      for (final asset in _currentAssets) asset.id: asset,
-    };
-    _selectedAssetsEntities = _selectedAssets.where(assetMap.containsKey).map((id) => assetMap[id]!).toList();
+    _selectedAssetsEntities = _selectedAssets.values.toList();
   }
 
   set isAssetsEmpty(bool value) {
@@ -212,20 +211,31 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
       return;
     }
     _currentAssets = value.toList();
+
     _updateSelectedAssetsEntities();
     notifyListeners();
   }
 
   /// Selected assets.
   /// 已选中的资源
-  List<String> get selectedAssets => _selectedAssets;
-  late List<String> _selectedAssets;
+  List<String> get selectedAssets => _selectedAssets.keys.toList();
+  Map<String, Asset> _selectedAssets = {};
 
   set selectedAssets(List<String> value) {
-    if (value == _selectedAssets) {
+    if (value == _selectedAssets.keys.toList()) {
       return;
     }
-    _selectedAssets = value.toList();
+
+    final assetMap = <String, Asset>{
+      for (final asset in _currentAssets) asset.id: asset,
+    };
+
+    _selectedAssets = {
+      for (final entry in _selectedAssets.entries)
+        if (!assetMap.containsKey(entry.key)) entry.key: entry.value,
+      for (final id in value)
+        if (assetMap.containsKey(id)) id: assetMap[id]!,
+    };
     _updateSelectedAssetsEntities();
     notifyListeners();
   }
@@ -236,7 +246,7 @@ abstract class AssetPickerProvider<Asset extends AssetEntity, Path> extends Chan
   /// This getter provides a "Should Rebuild" condition judgement to [Selector]
   /// with the preview widget's selective part.
   /// 它为预览部件的选中部分的 [Selector] 提供了是否重建的条件。
-  String get selectedDescriptions => _selectedAssets.fold(
+  String get selectedDescriptions => _selectedAssets.keys.fold(
         <String>[],
         (List<String> list, String a) => list..add(a),
       ).join();
@@ -447,6 +457,12 @@ class DefaultAssetPickerProvider extends AssetPickerProvider<AssetEntity, AssetP
         _hasMoreToLoad = false;
       }
       _currentAssets.addAll(list);
+
+      if (initialSelectedAssets != null) {
+        selectedAssets = initialSelectedAssets!;
+        initialSelectedAssets = null;
+      }
+
       _updateSelectedAssetsEntities();
       _hasAssetsToDisplay = _currentAssets.isNotEmpty;
       _isAssetsEmpty = _currentAssets.isEmpty;
