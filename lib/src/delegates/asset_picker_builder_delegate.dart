@@ -1374,7 +1374,6 @@ class DefaultAssetPickerBuilderDelegate<T extends DefaultAssetPickerProvider>
           return SliverGrid(
             delegate: SliverChildBuilderDelegate(
               (context, int index) {
-                print('index: $index');
                 if (placeholderCount > 0) {
                   if (index < placeholderCount) {
                     return const SizedBox.shrink();
